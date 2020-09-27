@@ -181,6 +181,7 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "futures",
+ "game-comms-messages",
  "tokio",
  "tokio-util",
  "tracing",
@@ -188,11 +189,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "game-comms-messages"
+version = "0.1.0"
+
+[[package]]
 name = "game-comms-server"
 version = "0.1.0"
 dependencies = [
  "bytes",
  "futures",
+ "game-comms-messages",
  "tokio",
  "tokio-util",
  "tracing",

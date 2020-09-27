@@ -13,3 +13,4 @@ tokio = { version = "0.2.22", features = ["full"] }
 tokio-util = { version = "0.3.1", features = ["codec"] }
 tracing = "0.1.19"
 tracing-subscriber = "0.2.12"
+game-comms-messages = { version = "0.1.0", path = "../messages" }

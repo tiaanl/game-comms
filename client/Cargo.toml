@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 bytes = "0.5.6"
 futures = "0.3.5"
+game-comms-messages = { version = "0.1.0", path = "../messages" }
 tokio = { version = "0.2.22", features = ["full"] }
 tokio-util = { version = "0.3.1", features = ["codec"] }
 tracing = "0.1.19"

@@ -1,30 +1,33 @@
-use bytes::{Buf, BufMut, Bytes, BytesMut};
-use std::error::Error;
-use tokio::io::AsyncReadExt;
-use tokio::io::AsyncWriteExt;
+mod codec;
+mod error;
+
+use crate::codec::GameClientCodec;
+use crate::error::ClientError;
+use futures::{SinkExt, StreamExt};
+use game_comms_messages::{ClientMessage, ServerMessage};
 use tokio::net::TcpStream;
+use tokio_util::codec::Decoder;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<(), ClientError> {
     let addr = "127.0.0.1:8000".to_string();
-    let mut stream = TcpStream::connect(&addr).await?;
+    let stream = TcpStream::connect(&addr).await?;
 
-    let mut bytes = BytesMut::new();
-    bytes.reserve(8);
-    bytes.put_u32(1);
-    bytes.put_u32(9);
-    stream.write_buf(&mut bytes).await?;
+    let codec = GameClientCodec {};
+    let (mut sink, mut input) = codec.framed(stream).split();
 
-    let mut buf: [u8; 4096] = [0; 4096];
-    let p = stream.read(&mut buf).await?;
+    sink.send(ClientMessage::HelloFromClient { client_version: 1 })
+        .await?;
 
-    println!("read {} bytes", p);
+    while let Some(Ok(message)) = input.next().await {
+        match message {
+            ServerMessage::HelloFromServer { server_version } => {
+                println!("Connected to server with version: {}", server_version);
+            }
 
-    let mut buf = Bytes::copy_from_slice(&buf);
-    println!("receive buffer length: {}", buf.len());
-    let v1 = buf.get_u32();
-    let v2 = buf.get_u32();
-    println!("values: {} {}", v1, v2);
+            ServerMessage::Ping => sink.send(ClientMessage::Pong).await?,
+        }
+    }
 
     Ok(())
 }
